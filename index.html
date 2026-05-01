@@ -324,7 +324,7 @@ const CAT_COLORS = {
   'Vinegars':        'var(--cat-vinegars)',
   'Sweeteners':      'var(--cat-sweeteners)',
   'Pantry':          'var(--cat-pantry)',
-  'Spice':           'var(--cat-spice)',
+  'Seasoning/Spice': 'var(--cat-spice)',
   'Sauce/Condiment': 'var(--cat-sauce)',
   'Frozen':          'var(--cat-frozen)',
   'Other':           'var(--cat-other)',
@@ -341,7 +341,7 @@ function buildCategorySelect() {
 }
 
 // ── CATEGORY ORDER ────────────────────────────────────────────────────────────
-const CAT_ORDER = ['Produce','Protein','Dairy','Grains/Flour','Vinegars','Sweeteners','Pantry','Spice','Sauce/Condiment','Frozen','Other'];
+const CAT_ORDER = ['Produce','Protein','Dairy','Grains/Flour','Vinegars','Sweeteners','Pantry','Seasoning/Spice','Sauce/Condiment','Frozen','Other'];
 
 // ── COLLAPSED STATE ───────────────────────────────────────────────────────────
 let collapsedCats = JSON.parse(localStorage.getItem('pantry_collapsed') || '{}');
@@ -629,9 +629,10 @@ function renderList() {
     return;
   }
 
-  // Default: by category
+  // Default: by category, items alphabetical within each category
   const groups = {};
   filtered.forEach(it => { const c=it.category||'Other'; if(!groups[c])groups[c]=[]; groups[c].push(it); });
+  Object.values(groups).forEach(g => g.sort((a,b)=>a.name.localeCompare(b.name)));
   const sortedCats = Object.keys(groups).sort((a,b)=>{
     const ai=CAT_ORDER.indexOf(a), bi=CAT_ORDER.indexOf(b);
     return (ai<0?99:ai)-(bi<0?99:bi);
