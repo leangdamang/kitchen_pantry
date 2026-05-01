@@ -243,32 +243,10 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="categories.js"></script>
 <script>
 // ── APPS SCRIPT ENDPOINT ──────────────────────────────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySyic8BA7twuOfB-Y2POIA5EmLD6Ye-q9-XzzDBKKc7_-gK9kedl9dJggQDepBdNf1/exec';
-
-// ── CATEGORY DICTIONARY ───────────────────────────────────────────────────────
-const CATEGORY_MAP = {
-  Produce: ['apple','banana','orange','lemon','lime','grape','strawberry','blueberry','mango','avocado','tomato','onion','garlic','shallot','ginger','potato','sweet potato','carrot','celery','broccoli','cauliflower','spinach','kale','lettuce','arugula','cabbage','zucchini','squash','eggplant','pepper','bell pepper','jalapeño','jalapeno','cucumber','mushroom','asparagus','corn','pea','beet','radish','leek','fennel','scallion','bok choy','basil','cilantro','parsley','mint','thyme','rosemary','dill','chive','sage','lemongrass','peach','pear','watermelon','kiwi','fig','plum','cherry','pineapple','raspberry','herbs'],
-  Protein: ['chicken','beef','pork','lamb','turkey','duck','salmon','tuna','cod','tilapia','shrimp','prawns','crab','lobster','scallop','clam','mussel','oyster','anchovy','sardine','egg','tofu','tempeh','seitan','bacon','ham','sausage','steak','fish','ground beef','ground turkey','ground chicken'],
-  Dairy: ['milk','butter','cream','heavy cream','sour cream','cream cheese','ricotta','mozzarella','cheddar','parmesan','gruyere','brie','gouda','feta','goat cheese','blue cheese','yogurt','greek yogurt','kefir','ghee','half and half','cottage cheese','mascarpone','cheese','whipped cream','ice cream'],
-  Pantry: ['flour','sugar','salt','pepper','oil','olive oil','vegetable oil','coconut oil','sesame oil','vinegar','balsamic','broth','stock','pasta','spaghetti','penne','rice','quinoa','lentils','beans','black beans','chickpeas','bread','breadcrumbs','oats','tortilla','tomato paste','tomato sauce','coconut milk','honey','maple syrup','jam','peanut butter','almond butter','tahini','mustard','ketchup','mayonnaise','soy sauce','fish sauce','hot sauce','baking soda','baking powder','cocoa','chocolate','vanilla','almonds','walnuts','cashews','pistachios','raisins','crackers','cereal','noodles','couscous','polenta'],
-  Spice: ['cumin','coriander','turmeric','paprika','cayenne','chili powder','chili flakes','cinnamon','nutmeg','cardamom','bay leaf','oregano','fennel seed','star anise','saffron','sumac','zaatar','garam masala','curry powder','five spice','garlic powder','onion powder','black pepper','white pepper','smoked paprika','allspice','cloves','caraway','berbere','ras el hanout','italian seasoning','seasoning'],
-  'Sauce/Condiment': ['harissa','sriracha','tabasco','sambal','gochujang','hoisin','oyster sauce','ponzu','teriyaki','miso','pesto','salsa','guacamole','chimichurri','tzatziki','barbecue sauce','bbq sauce','ranch','caesar','balsamic glaze','chutney','relish','pickle','capers','olives','dijon','horseradish','wasabi','curry paste','red curry','green curry','coconut aminos','xo sauce','worcestershire','aioli'],
-  Frozen: ['frozen','ice cream','frozen vegetables','frozen fruit','frozen peas','frozen edamame','frozen spinach','frozen shrimp','frozen fish','frozen chicken','frozen pizza']
-};
-
-const WORD_TO_CAT = {};
-Object.entries(CATEGORY_MAP).forEach(([cat, words]) => words.forEach(w => { WORD_TO_CAT[w.toLowerCase()] = cat; }));
-
-function guessCategory(name) {
-  const lower = name.toLowerCase();
-  if (WORD_TO_CAT[lower]) return WORD_TO_CAT[lower];
-  for (const [word, cat] of Object.entries(WORD_TO_CAT)) {
-    if (lower.includes(word) || word.includes(lower)) return cat;
-  }
-  return 'Other';
-}
 
 // ── VOICE PARSING ─────────────────────────────────────────────────────────────
 const ADD_SYNS = ['add','bought','got','picked up','stocked','picking up','grabbing','grabbed','purchased','just got','just bought'];
