@@ -27,9 +27,23 @@
     --out-bg: rgba(192,90,74,0.12);
     --radius: 10px;
     --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+    /* Category colors */
+    --cat-produce: #5a9e5a;
+    --cat-protein: #c07040;
+    --cat-dairy: #8899bb;
+    --cat-grains: #b8955a;
+    --cat-vinegars: #9966aa;
+    --cat-sweeteners: #cc8877;
+    --cat-pantry: #7a8899;
+    --cat-spice: #cc7744;
+    --cat-sauce: #bb5566;
+    --cat-frozen: #5599aa;
+    --cat-other: #666660;
   }
+
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body { font-family: 'DM Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; min-height: -webkit-fill-available; overflow-x: hidden; }
+  body { font-family: 'DM Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
 
   /* CONFIG */
   #config-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 24px; gap: 32px; }
@@ -51,9 +65,10 @@
   /* HEADER */
   .header { padding: 56px 20px 16px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: rgba(15,14,12,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 100; border-bottom: 1px solid var(--border); }
   .header-title { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--accent); letter-spacing: -0.5px; }
-  .header-actions { display: flex; gap: 8px; align-items: center; }
-  .icon-btn { width: 36px; height: 36px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); font-size: 16px; transition: all 0.2s; flex-shrink: 0; }
+  .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+  .icon-btn { height: 36px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); font-size: 13px; transition: all 0.2s; flex-shrink: 0; padding: 0 10px; gap: 5px; white-space: nowrap; }
   .icon-btn:active { background: var(--surface2); color: var(--text); }
+  .icon-btn.active { background: var(--accent); color: #0f0e0c; border-color: var(--accent); }
 
   /* TABS */
   .tabs { display: flex; gap: 4px; padding: 12px 20px; background: var(--bg); border-bottom: 1px solid var(--border); }
@@ -61,24 +76,46 @@
   .tab.active { background: var(--surface); border-color: var(--border); color: var(--text); }
   .tab .count { display: inline-block; background: var(--out); color: white; border-radius: 10px; font-size: 9px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
 
-  /* SEARCH */
-  .search-wrap { padding: 12px 20px; background: var(--bg); }
-  .search-input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; padding: 11px 14px 11px 38px; outline: none; transition: border-color 0.2s; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237a7670' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 12px center; }
+  /* TOOLBAR */
+  .toolbar { display: flex; gap: 8px; padding: 10px 20px; background: var(--bg); border-bottom: 1px solid var(--border); align-items: center; flex-wrap: wrap; }
+  .search-input { flex: 1; min-width: 120px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; padding: 9px 12px 9px 34px; outline: none; transition: border-color 0.2s; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237a7670' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 10px center; }
   .search-input:focus { border-color: var(--accent-dim); }
   .search-input::placeholder { color: var(--text-dim); }
+  .sort-select { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-muted); font-family: 'DM Mono', monospace; font-size: 11px; padding: 9px 10px; outline: none; cursor: pointer; appearance: none; -webkit-appearance: none; }
 
   /* CONTENT */
-  .content { flex: 1; overflow-y: auto; padding: 8px 20px calc(120px + var(--safe-bottom)); }
-  .category-group { margin-bottom: 24px; }
-  .category-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); padding: 8px 0 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
-  .item-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid rgba(46,44,41,0.5); cursor: pointer; transition: opacity 0.15s; }
-  .item-row:active { opacity: 0.6; }
-  .item-name { flex: 1; font-size: 15px; color: var(--text); }
+  .content { flex: 1; overflow-y: auto; padding: 12px 20px calc(120px + var(--safe-bottom)); }
+
+  /* TWO COLUMN LAYOUT on large screens */
+  @media (min-width: 768px) {
+    .content { padding: 16px 24px calc(100px + var(--safe-bottom)); }
+    .category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; align-items: start; }
+  }
+
+  /* CATEGORY GROUP */
+  .category-group { margin-bottom: 8px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; break-inside: avoid; }
+  .category-header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; user-select: none; transition: background 0.15s; }
+  .category-header:active { background: var(--surface2); }
+  .cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .category-label { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-muted); flex: 1; }
+  .cat-count { font-size: 10px; color: var(--text-dim); }
+  .cat-chevron { font-size: 10px; color: var(--text-dim); transition: transform 0.2s; }
+  .cat-chevron.open { transform: rotate(90deg); }
+  .category-items { display: none; border-top: 1px solid var(--border); }
+  .category-items.open { display: block; }
+
+  /* ITEM ROW */
+  .item-row { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-bottom: 1px solid rgba(46,44,41,0.4); cursor: pointer; transition: background 0.1s; }
+  .item-row:last-child { border-bottom: none; }
+  .item-row:active { background: var(--surface2); }
+  .item-name { flex: 1; font-size: 14px; color: var(--text); }
   .item-notes { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-  .status-pill { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding: 4px 9px; border-radius: 20px; flex-shrink: 0; font-weight: 500; }
+  .status-pill { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; font-weight: 500; }
   .status-pill.have { background: var(--have-bg); color: var(--have); }
   .status-pill.low { background: var(--low-bg); color: var(--low); }
   .status-pill.out { background: var(--out-bg); color: var(--out); }
+
+  /* EMPTY / LOADING */
   .empty { text-align: center; padding: 60px 20px; color: var(--text-dim); font-size: 13px; line-height: 1.8; white-space: pre-line; }
   .loading { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; }
   .spinner { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
@@ -106,6 +143,7 @@
   .voice-result { font-size: 13px; color: var(--accent); text-align: center; min-height: 20px; }
   .voice-examples { font-size: 11px; color: var(--text-dim); text-align: center; line-height: 2; margin-top: 4px; }
   .voice-cancel { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); cursor: pointer; padding: 14px; margin-top: 8px; }
+  .voice-timer { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; }
 
   /* MODAL */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 300; display: none; align-items: flex-end; justify-content: center; }
@@ -131,8 +169,18 @@
   .btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
   .btn-delete { background: var(--out-bg); border: 1px solid var(--out); border-radius: var(--radius); color: var(--out); font-family: 'DM Mono', monospace; font-size: 13px; padding: 14px 16px; cursor: pointer; }
 
+  /* RECATEGORIZE MODAL */
+  .recat-progress { font-size: 12px; color: var(--text-muted); text-align: center; padding: 12px; }
+  .recat-list { max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 16px; }
+  .recat-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .recat-item:last-child { border-bottom: none; }
+  .recat-name { flex: 1; color: var(--text); }
+  .recat-from { color: var(--text-dim); font-size: 11px; }
+  .recat-arrow { color: var(--text-dim); }
+  .recat-to { color: var(--accent); font-size: 11px; }
+
   /* TOAST */
-  .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px); background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 18px; font-size: 13px; color: var(--text); opacity: 0; transition: all 0.3s; z-index: 500; white-space: nowrap; pointer-events: none; }
+  .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px); background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 18px; font-size: 13px; color: var(--text); opacity: 0; transition: all 0.3s; z-index: 500; white-space: nowrap; pointer-events: none; max-width: 90vw; text-align: center; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .toast.success { border-color: var(--have); color: var(--have); }
   .toast.error { border-color: var(--out); color: var(--out); }
@@ -153,7 +201,6 @@
     <div class="config-field">
       <div class="config-label">Your Name (optional)</div>
       <input class="config-input" id="cfg-name" placeholder="e.g. Leang">
-      <div class="config-hint">Just for the welcome message.</div>
     </div>
     <button class="btn-primary" onclick="saveConfig()">Launch →</button>
   </div>
@@ -166,20 +213,31 @@
       <div class="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">synced</span></div>
     </div>
     <div class="header-actions">
+      <div class="icon-btn" onclick="recategorizeAll()" title="Re-categorize items">⟳ Recategorize</div>
       <div class="icon-btn" onclick="refreshData()">↻</div>
       <div class="icon-btn" onclick="showSettings()">⚙</div>
     </div>
   </div>
+
   <div class="tabs">
     <button class="tab active" id="tab-all" onclick="switchTab('all')">All</button>
     <button class="tab" id="tab-shopping" onclick="switchTab('shopping')">Shopping <span class="count" id="shopping-count" style="display:none"></span></button>
   </div>
-  <div class="search-wrap">
+
+  <div class="toolbar">
     <input class="search-input" id="search" placeholder="Search ingredients..." oninput="renderList()">
+    <select class="sort-select" id="sort-select" onchange="renderList()">
+      <option value="category">By Category</option>
+      <option value="name">A → Z</option>
+      <option value="status">By Status</option>
+      <option value="recent">Recently Updated</option>
+    </select>
   </div>
+
   <div class="content" id="content">
     <div class="loading"><div class="spinner"></div>Loading...</div>
   </div>
+
   <div class="bottom-bar">
     <button class="fab" onclick="openAdd()">+</button>
     <button class="mic-btn" id="mic-btn" onclick="toggleVoice()">
@@ -194,6 +252,7 @@
   <div class="voice-transcript" id="voice-transcript">Listening...</div>
   <div class="voice-label" id="voice-label">Speak now</div>
   <div class="voice-result" id="voice-result"></div>
+  <div class="voice-timer" id="voice-timer"></div>
   <div class="voice-examples">
     "bought harissa" · "onions are low"<br>
     "used up the garlic" · "remove thyme"
@@ -201,7 +260,7 @@
   <div class="voice-cancel" onclick="stopVoice()">Cancel</div>
 </div>
 
-<!-- MODAL -->
+<!-- ADD/EDIT MODAL -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -213,12 +272,7 @@
       </div>
       <div>
         <div class="field-label">Category</div>
-        <select class="field-select" id="f-category">
-          <option value="">— Select —</option>
-          <option>Produce</option><option>Protein</option><option>Dairy</option>
-          <option>Pantry</option><option>Spice</option><option>Sauce/Condiment</option>
-          <option>Frozen</option><option>Other</option>
-        </select>
+        <select class="field-select" id="f-category"></select>
       </div>
       <div>
         <div class="field-label">Status</div>
@@ -241,12 +295,62 @@
   </div>
 </div>
 
+<!-- RECATEGORIZE MODAL -->
+<div class="modal-overlay" id="recat-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Recategorize</div>
+    <div id="recat-content"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeRecatModal()">Cancel</button>
+      <button class="btn-save" id="recat-confirm" onclick="confirmRecategorize()">Update All</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="categories.js"></script>
 <script>
 // ── APPS SCRIPT ENDPOINT ──────────────────────────────────────────────────────
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySyic8BA7twuOfB-Y2POIA5EmLD6Ye-q9-XzzDBKKc7_-gK9kedl9dJggQDepBdNf1/exec';
+
+// ── CATEGORY COLORS ───────────────────────────────────────────────────────────
+const CAT_COLORS = {
+  'Produce':         'var(--cat-produce)',
+  'Protein':         'var(--cat-protein)',
+  'Dairy':           'var(--cat-dairy)',
+  'Grains/Flour':    'var(--cat-grains)',
+  'Vinegars':        'var(--cat-vinegars)',
+  'Sweeteners':      'var(--cat-sweeteners)',
+  'Pantry':          'var(--cat-pantry)',
+  'Spice':           'var(--cat-spice)',
+  'Sauce/Condiment': 'var(--cat-sauce)',
+  'Frozen':          'var(--cat-frozen)',
+  'Other':           'var(--cat-other)',
+};
+
+function catColor(cat) { return CAT_COLORS[cat] || 'var(--cat-other)'; }
+
+// Build dynamic category options
+function buildCategorySelect() {
+  const cats = Object.keys(CATEGORY_MAP).concat(['Other']);
+  const sel = document.getElementById('f-category');
+  sel.innerHTML = '<option value="">— Select —</option>' +
+    cats.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+// ── CATEGORY ORDER ────────────────────────────────────────────────────────────
+const CAT_ORDER = ['Produce','Protein','Dairy','Grains/Flour','Vinegars','Sweeteners','Pantry','Spice','Sauce/Condiment','Frozen','Other'];
+
+// ── COLLAPSED STATE ───────────────────────────────────────────────────────────
+let collapsedCats = JSON.parse(localStorage.getItem('pantry_collapsed') || '{}');
+
+function toggleCat(cat) {
+  collapsedCats[cat] = !collapsedCats[cat];
+  localStorage.setItem('pantry_collapsed', JSON.stringify(collapsedCats));
+  renderList();
+}
 
 // ── VOICE PARSING ─────────────────────────────────────────────────────────────
 const ADD_SYNS = ['add','bought','got','picked up','stocked','picking up','grabbing','grabbed','purchased','just got','just bought'];
@@ -263,12 +367,10 @@ function titleCase(s) { return s.replace(/\w\S*/g, w => w[0].toUpperCase()+w.sli
 
 function parseVoice(transcript) {
   const t = transcript.toLowerCase().trim();
-  // DELETE
   for (const syn of DEL_SYNS) {
     const m = t.match(new RegExp(`^(?:please\\s+)?${escRx(syn)}\\s+(?:the\\s+|my\\s+)?(.+)$`));
     if (m) { const item = cleanItem(m[1]); if (item) return { action:'delete', item:titleCase(item) }; }
   }
-  // STATUS triggers
   for (const [status, phrases] of Object.entries(STATUS_TRIGGERS)) {
     for (const phrase of phrases) {
       const p = escRx(phrase);
@@ -284,7 +386,6 @@ function parseVoice(transcript) {
       }
     }
   }
-  // ADD synonyms
   for (const syn of ADD_SYNS) {
     const p = escRx(syn);
     const patterns = [
@@ -296,7 +397,6 @@ function parseVoice(transcript) {
       if (m) { const item = cleanItem(m[1]||''); if (item && item.split(' ').length<=5) return { action:'add', item:titleCase(item), status:'Have' }; }
     }
   }
-  // Bare item fallback
   const cleaned = cleanItem(t);
   if (cleaned && cleaned.split(' ').length<=4 && !cleaned.includes(' is ') && !cleaned.includes(' are ')) {
     return { action:'add', item:titleCase(cleaned), status:'Have' };
@@ -305,7 +405,8 @@ function parseVoice(transcript) {
 }
 
 // ── VOICE RECOGNITION ─────────────────────────────────────────────────────────
-let recognition = null, isListening = false;
+let recognition = null, isListening = false, voiceTimeout = null, voiceCountdown = null;
+const VOICE_TIMEOUT_SEC = 30;
 
 function toggleVoice() { isListening ? stopVoice() : startVoice(); }
 
@@ -323,6 +424,26 @@ function startVoice() {
   document.getElementById('mic-label').textContent = 'Listening...';
   setVoiceUI('listening','🎙','Speak now','');
   document.getElementById('voice-transcript').textContent = '...';
+
+  // 30 second auto-stop
+  let secondsLeft = VOICE_TIMEOUT_SEC;
+  document.getElementById('voice-timer').textContent = `Auto-stops in ${secondsLeft}s`;
+  voiceCountdown = setInterval(() => {
+    secondsLeft--;
+    if (secondsLeft <= 0) {
+      document.getElementById('voice-timer').textContent = '';
+      clearInterval(voiceCountdown);
+    } else {
+      document.getElementById('voice-timer').textContent = `Auto-stops in ${secondsLeft}s`;
+    }
+  }, 1000);
+  voiceTimeout = setTimeout(() => {
+    if (isListening) {
+      setVoiceUI('error','⏱','Timed out after 30s','');
+      setTimeout(stopVoice, 1200);
+    }
+  }, VOICE_TIMEOUT_SEC * 1000);
+
   recognition.onresult = (e) => {
     let interim='', final='';
     for (let i=e.resultIndex; i<e.results.length; i++) {
@@ -332,11 +453,14 @@ function startVoice() {
     document.getElementById('voice-transcript').textContent = final||interim||'...';
   };
   recognition.onend = async () => {
+    clearTimeout(voiceTimeout); clearInterval(voiceCountdown);
+    document.getElementById('voice-timer').textContent = '';
     const tx = document.getElementById('voice-transcript').textContent;
     if (!tx||tx==='...') { setVoiceUI('error','🎙','Nothing heard',''); setTimeout(stopVoice,1500); return; }
     await processVoice(tx);
   };
   recognition.onerror = (e) => {
+    clearTimeout(voiceTimeout); clearInterval(voiceCountdown);
     const msg = e.error==='not-allowed'?'Mic access denied':e.error==='no-speech'?'Nothing heard':`Error: ${e.error}`;
     setVoiceUI('error','✕',msg,'');
     setTimeout(stopVoice,1800);
@@ -393,6 +517,8 @@ async function processVoice(transcript) {
 }
 
 function stopVoice() {
+  clearTimeout(voiceTimeout); clearInterval(voiceCountdown);
+  document.getElementById('voice-timer').textContent = '';
   if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
   isListening = false;
   document.getElementById('voice-overlay').classList.remove('open');
@@ -402,10 +528,7 @@ function stopVoice() {
 
 // ── APPS SCRIPT API ───────────────────────────────────────────────────────────
 async function apiCall(payload) {
-  const res = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    body: JSON.stringify(payload)
-  });
+  const res = await fetch(SCRIPT_URL, { method:'POST', body:JSON.stringify(payload) });
   if (!res.ok) throw new Error(`Script error: ${res.status}`);
   const data = await res.json();
   if (data.error) throw new Error(data.error);
@@ -421,16 +544,13 @@ async function fetchRows() {
 
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 let items = [], currentTab = 'all', editingRow = null, selectedStatus = 'Have';
+let recatChanges = [];
 
 function saveConfig() {
-  localStorage.setItem('pantry_configured', '1');
+  localStorage.setItem('pantry_configured','1');
   launchApp();
 }
-
-function loadConfig() {
-  return !!localStorage.getItem('pantry_configured');
-}
-
+function loadConfig() { return !!localStorage.getItem('pantry_configured'); }
 function showSettings() {
   localStorage.removeItem('pantry_configured');
   document.getElementById('config-screen').style.display = 'flex';
@@ -440,6 +560,7 @@ function showSettings() {
 function launchApp() {
   document.getElementById('config-screen').style.display = 'none';
   document.getElementById('app').style.display = 'flex';
+  buildCategorySelect();
   refreshData().then(() => {
     const p = new URLSearchParams(window.location.search);
     if (p.get('action')==='voice') setTimeout(startVoice,500);
@@ -473,32 +594,77 @@ function setSyncing(s, err=false) {
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function renderList() {
   const query = document.getElementById('search').value.toLowerCase();
+  const sortBy = document.getElementById('sort-select').value;
   const content = document.getElementById('content');
+
   let filtered = items.filter(it => {
-    if (query && !it.name.toLowerCase().includes(query) && !it.category.toLowerCase().includes(query)) return false;
+    if (query && !it.name.toLowerCase().includes(query) && !it.category.toLowerCase().includes(query) && !it.notes.toLowerCase().includes(query)) return false;
     if (currentTab==='shopping') return it.status==='Low'||it.status==='Out';
     return true;
   });
+
   if (!filtered.length) {
     content.innerHTML = `<div class="empty">${query?`No results for "${query}"`:currentTab==='shopping'?'Nothing low or out 🎉':'No ingredients yet.\nTap + to add your first.'}</div>`;
     return;
   }
+
+  // Sort
+  if (sortBy==='name') {
+    filtered.sort((a,b)=>a.name.localeCompare(b.name));
+    content.innerHTML = `<div class="category-grid">${filtered.map(it=>itemRowHTML(it)).join('')}</div>`;
+    return;
+  }
+  if (sortBy==='status') {
+    const order = {'Out':0,'Low':1,'Have':2};
+    filtered.sort((a,b)=>(order[a.status]??3)-(order[b.status]??3)||a.name.localeCompare(b.name));
+    // Group by status
+    const groups = {'Out':[],'Low':[],'Have':[]};
+    filtered.forEach(it=>{ if(groups[it.status]) groups[it.status].push(it); });
+    content.innerHTML = `<div class="category-grid">${Object.entries(groups).filter(([,v])=>v.length).map(([s,its])=>categoryGroupHTML(s,its,catColor('Other'))).join('')}</div>`;
+    return;
+  }
+  if (sortBy==='recent') {
+    filtered.sort((a,b)=>new Date(b.updated||0)-new Date(a.updated||0));
+    content.innerHTML = `<div class="category-grid">${filtered.map(it=>itemRowHTML(it)).join('')}</div>`;
+    return;
+  }
+
+  // Default: by category
   const groups = {};
   filtered.forEach(it => { const c=it.category||'Other'; if(!groups[c])groups[c]=[]; groups[c].push(it); });
-  const order = ['Produce','Protein','Dairy','Pantry','Spice','Sauce/Condiment','Frozen','Other'];
-  const cats = Object.keys(groups).sort((a,b)=>(order.indexOf(a)<0?99:order.indexOf(a))-(order.indexOf(b)<0?99:order.indexOf(b)));
-  content.innerHTML = cats.map(cat=>`
+  const sortedCats = Object.keys(groups).sort((a,b)=>{
+    const ai=CAT_ORDER.indexOf(a), bi=CAT_ORDER.indexOf(b);
+    return (ai<0?99:ai)-(bi<0?99:bi);
+  });
+
+  content.innerHTML = `<div class="category-grid">${sortedCats.map(cat=>categoryGroupHTML(cat, groups[cat], catColor(cat))).join('')}</div>`;
+}
+
+function categoryGroupHTML(cat, its, color) {
+  const isOpen = !collapsedCats[cat];
+  return `
     <div class="category-group">
-      <div class="category-label">${cat}</div>
-      ${groups[cat].map(it=>`
-        <div class="item-row" onclick="openEdit(${it.rowIndex})">
-          <div style="flex:1">
-            <div class="item-name">${it.name}</div>
-            ${it.notes?`<div class="item-notes">${it.notes}</div>`:''}
-          </div>
-          <div class="status-pill ${it.status.toLowerCase()}">${it.status}</div>
-        </div>`).join('')}
-    </div>`).join('');
+      <div class="category-header" onclick="toggleCat('${cat.replace(/'/g,"\\'")}')">
+        <div class="cat-dot" style="background:${color}"></div>
+        <div class="category-label" style="color:${color}">${cat}</div>
+        <div class="cat-count">${its.length}</div>
+        <div class="cat-chevron ${isOpen?'open':''}">▶</div>
+      </div>
+      <div class="category-items ${isOpen?'open':''}">
+        ${its.map(it=>itemRowHTML(it)).join('')}
+      </div>
+    </div>`;
+}
+
+function itemRowHTML(it) {
+  return `
+    <div class="item-row" onclick="openEdit(${it.rowIndex})">
+      <div style="flex:1">
+        <div class="item-name">${it.name}</div>
+        ${it.notes?`<div class="item-notes">${it.notes}</div>`:''}
+      </div>
+      <div class="status-pill ${it.status.toLowerCase()}">${it.status}</div>
+    </div>`;
 }
 
 function updateShoppingCount() {
@@ -512,6 +678,62 @@ function switchTab(tab) {
   document.getElementById('tab-all').className='tab'+(tab==='all'?' active':'');
   document.getElementById('tab-shopping').className='tab'+(tab==='shopping'?' active':'');
   renderList();
+}
+
+// ── RECATEGORIZE ──────────────────────────────────────────────────────────────
+function recategorizeAll() {
+  recatChanges = [];
+  for (const it of items) {
+    const suggested = guessCategory(it.name);
+    if (suggested !== it.category) {
+      recatChanges.push({ item:it, newCat:suggested });
+    }
+  }
+  const modal = document.getElementById('recat-modal');
+  const content = document.getElementById('recat-content');
+  if (!recatChanges.length) {
+    content.innerHTML = '<div class="recat-progress">All items are already correctly categorized ✓</div>';
+    document.getElementById('recat-confirm').style.display = 'none';
+  } else {
+    document.getElementById('recat-confirm').style.display = '';
+    content.innerHTML = `
+      <div class="recat-progress">${recatChanges.length} item${recatChanges.length>1?'s':''} will be updated</div>
+      <div class="recat-list">
+        ${recatChanges.map(c=>`
+          <div class="recat-item">
+            <div class="recat-name">${c.item.name}</div>
+            <div class="recat-from">${c.item.category}</div>
+            <div class="recat-arrow">→</div>
+            <div class="recat-to">${c.newCat}</div>
+          </div>`).join('')}
+      </div>`;
+  }
+  modal.classList.add('open');
+}
+
+async function confirmRecategorize() {
+  const btn = document.getElementById('recat-confirm');
+  btn.disabled = true; btn.textContent = 'Updating...';
+  let success = 0;
+  for (const c of recatChanges) {
+    try {
+      const now = new Date().toLocaleDateString('en-US');
+      const row = [c.item.name, c.newCat, c.item.status, c.item.notes, now];
+      await apiCall({ action:'update', rowIndex:c.item.rowIndex, row });
+      const idx = items.findIndex(i=>i.rowIndex===c.item.rowIndex);
+      if (idx>=0) items[idx].category = c.newCat;
+      success++;
+    } catch(e) { console.error(e); }
+  }
+  btn.disabled = false; btn.textContent = 'Update All';
+  closeRecatModal();
+  renderList();
+  showToast(`${success} item${success!==1?'s':''} recategorized ✓`, 'success');
+}
+
+function closeRecatModal() {
+  document.getElementById('recat-modal').classList.remove('open');
+  recatChanges = [];
 }
 
 // ── MODAL ─────────────────────────────────────────────────────────────────────
@@ -598,6 +820,7 @@ async function deleteItem() {
   } catch(e){showToast('Delete failed','error');}
 }
 
+// ── TOAST ─────────────────────────────────────────────────────────────────────
 function showToast(msg,type='') {
   const t=document.getElementById('toast');
   t.textContent=msg; t.className='toast show'+(type?' '+type:'');
@@ -605,6 +828,8 @@ function showToast(msg,type='') {
 }
 
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.getElementById('recat-modal').addEventListener('click',function(e){if(e.target===this)closeRecatModal();});
+
 if(loadConfig()) launchApp();
 </script>
 </body>
