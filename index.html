@@ -577,7 +577,7 @@ function selectStatus(s) {
 }
 
 async function saveItem() {
-  const name=document.getElementById('f-name').value.trim();
+  const name=titleCase(document.getElementById('f-name').value.trim());
   if(!name){showToast('Item name required','error');return;}
   const category=document.getElementById('f-category').value||guessCategory(name);
   const notes=document.getElementById('f-notes').value.trim();
