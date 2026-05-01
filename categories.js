@@ -130,7 +130,7 @@ const CATEGORY_MAP = {
     'granola','cereal','crackers'
   ],
 
-  Spice: [
+  'Seasoning/Spice': [
     'oregano','dried oregano','basil dried','dried basil','rosemary dried',
     'thyme dried','sage dried','marjoram','savory','fennel seed','fennel pollen',
     'red pepper flakes','chili flakes','italian seasoning','bay leaf','nutmeg',
