@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pantry">
+<title>Pantry</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0e0c;
+    --surface: #1a1916;
+    --surface2: #232220;
+    --border: #2e2c29;
+    --text: #f0ede6;
+    --text-muted: #7a7670;
+    --text-dim: #4a4844;
+    --accent: #d4a853;
+    --accent-dim: #8a6a2e;
+    --have: #4a9e6e;
+    --low: #d4a853;
+    --out: #c05a4a;
+    --have-bg: rgba(74,158,110,0.12);
+    --low-bg: rgba(212,168,83,0.12);
+    --out-bg: rgba(192,90,74,0.12);
+    --radius: 10px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    overflow-x: hidden;
+  }
+
+  /* CONFIG SCREEN */
+  #config-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 24px;
+    gap: 32px;
+  }
+
+  .config-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    color: var(--accent);
+    letter-spacing: -1px;
+  }
+
+  .config-subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .config-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .config-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .config-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .config-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .config-input:focus { border-color: var(--accent); }
+
+  .config-hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .config-hint a { color: var(--accent); text-decoration: none; }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #0f0e0c;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    padding: 14px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    text-transform: uppercase;
+  }
+
+  .btn-primary:active { opacity: 0.8; transform: scale(0.98); }
+
+  /* MAIN APP */
+  #app { display: none; flex-direction: column; min-height: 100vh; }
+
+  /* HEADER */
+  .header {
+    padding: 56px 20px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: rgba(15,14,12,0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+
+  .icon-btn {
+    width: 36px; height: 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 16px;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .icon-btn:active { background: var(--surface2); color: var(--text); }
+  .icon-btn.active { background: var(--accent); color: #0f0e0c; border-color: var(--accent); }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    padding: 12px 20px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab {
+    flex: 1;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    color: var(--text-muted);
+    background: transparent;
+  }
+
+  .tab.active {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--text);
+  }
+
+  .tab .count {
+    display: inline-block;
+    background: var(--out);
+    color: white;
+    border-radius: 10px;
+    font-size: 9px;
+    padding: 1px 5px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+
+  /* SEARCH */
+  .search-wrap {
+    padding: 12px 20px;
+    background: var(--bg);
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    padding: 11px 14px 11px 38px;
+    outline: none;
+    transition: border-color 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237a7670' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 12px center;
+  }
+
+  .search-input:focus { border-color: var(--accent-dim); }
+  .search-input::placeholder { color: var(--text-dim); }
+
+  /* CONTENT */
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 20px calc(100px + var(--safe-bottom));
+  }
+
+  /* CATEGORY GROUP */
+  .category-group { margin-bottom: 24px; }
+
+  .category-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 8px 0 6px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+  }
+
+  /* ITEM ROW */
+  .item-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid rgba(46,44,41,0.5);
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .item-row:active { opacity: 0.6; }
+
+  .item-name {
+    flex: 1;
+    font-size: 15px;
+    color: var(--text);
+    letter-spacing: 0.2px;
+  }
+
+  .item-notes {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .status-pill {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 20px;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+
+  .status-pill.have { background: var(--have-bg); color: var(--have); }
+  .status-pill.low { background: var(--low-bg); color: var(--low); }
+  .status-pill.out { background: var(--out-bg); color: var(--out); }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.8;
+  }
+
+  /* LOADING */
+  .loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .spinner {
+    width: 24px; height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* FAB */
+  .fab {
+    position: fixed;
+    bottom: calc(24px + var(--safe-bottom));
+    right: 20px;
+    width: 56px; height: 56px;
+    background: var(--accent);
+    border: none;
+    border-radius: 16px;
+    color: #0f0e0c;
+    font-size: 26px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 24px rgba(212,168,83,0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 200;
+  }
+
+  .fab:active { transform: scale(0.94); box-shadow: 0 2px 12px rgba(212,168,83,0.2); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 300;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-width: 600px;
+    padding: 20px 20px calc(24px + var(--safe-bottom));
+    animation: slideUp 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .field-group { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+
+  .field-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .field-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 15px;
+    padding: 13px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field-input:focus { border-color: var(--accent); }
+  .field-input::placeholder { color: var(--text-dim); }
+
+  .field-select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    padding: 13px 14px;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7670' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    cursor: pointer;
+  }
+
+  .status-options { display: flex; gap: 8px; }
+
+  .status-option {
+    flex: 1;
+    padding: 11px 8px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    color: var(--text-muted);
+    background: var(--bg);
+  }
+
+  .status-option.selected-have { background: var(--have-bg); border-color: var(--have); color: var(--have); }
+  .status-option.selected-low { background: var(--low-bg); border-color: var(--low); color: var(--low); }
+  .status-option.selected-out { background: var(--out-bg); border-color: var(--out); color: var(--out); }
+
+  .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
+
+  .btn-secondary {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:active { opacity: 0.7; }
+
+  .btn-save {
+    flex: 2;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius);
+    color: #0f0e0c;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    padding: 14px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .btn-save:active { opacity: 0.8; }
+  .btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-delete {
+    background: var(--out-bg);
+    border: 1px solid var(--out);
+    border-radius: var(--radius);
+    color: var(--out);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 13px;
+    color: var(--text);
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 500;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .toast.success { border-color: var(--have); color: var(--have); }
+  .toast.error { border-color: var(--out); color: var(--out); }
+
+  /* SIRI INSTRUCTIONS */
+  .siri-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 12px 20px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.8;
+  }
+
+  .siri-card strong { color: var(--accent); }
+
+  /* SYNC INDICATOR */
+  .sync-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--have);
+    display: inline-block;
+    margin-right: 4px;
+  }
+
+  .sync-dot.syncing {
+    background: var(--low);
+    animation: pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .sync-status {
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- CONFIG SCREEN -->
+<div id="config-screen">
+  <div class="config-logo">pantry</div>
+  <div class="config-subtitle">Kitchen Inventory</div>
+  <div class="config-card">
+    <div class="config-field">
+      <div class="config-label">Google Sheets API Key</div>
+      <input class="config-input" id="cfg-api-key" type="password" placeholder="AIza...">
+      <div class="config-hint">From <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a> → Credentials → API Key. Enable the Sheets API first.</div>
+    </div>
+    <div class="config-field">
+      <div class="config-label">Spreadsheet ID</div>
+      <input class="config-input" id="cfg-sheet-id" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+      <div class="config-hint">From your Sheet URL: docs.google.com/spreadsheets/d/<strong style="color:var(--accent)">THIS_PART</strong>/edit</div>
+    </div>
+    <div class="config-field">
+      <div class="config-label">Sheet Tab Name</div>
+      <input class="config-input" id="cfg-sheet-name" placeholder="Inventory" value="Inventory">
+      <div class="config-hint">The name of the tab in your spreadsheet (default: Inventory)</div>
+    </div>
+    <button class="btn-primary" onclick="saveConfig()">Connect & Launch →</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="header">
+    <div>
+      <div class="header-title">pantry</div>
+      <div class="sync-status"><span class="sync-dot" id="sync-dot"></span><span id="sync-text">synced</span></div>
+    </div>
+    <div class="header-actions">
+      <div class="icon-btn" onclick="refreshData()" title="Sync">↻</div>
+      <div class="icon-btn" onclick="showSettings()" title="Settings">⚙</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-all" onclick="switchTab('all')">All</button>
+    <button class="tab" id="tab-shopping" onclick="switchTab('shopping')">Shopping <span class="count" id="shopping-count" style="display:none"></span></button>
+  </div>
+
+  <div class="search-wrap">
+    <input class="search-input" id="search" placeholder="Search ingredients..." oninput="renderList()">
+  </div>
+
+  <div class="content" id="content">
+    <div class="loading"><div class="spinner"></div>Loading...</div>
+  </div>
+
+  <button class="fab" onclick="openAdd()">+</button>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">Add Ingredient</div>
+    <div class="field-group">
+      <div>
+        <div class="field-label">Item Name</div>
+        <input class="field-input" id="f-name" placeholder="e.g. harissa" autocomplete="off" autocorrect="off" autocapitalize="words">
+      </div>
+      <div>
+        <div class="field-label">Category</div>
+        <select class="field-select" id="f-category">
+          <option value="">— Select —</option>
+          <option>Produce</option>
+          <option>Protein</option>
+          <option>Dairy</option>
+          <option>Pantry</option>
+          <option>Spice</option>
+          <option>Sauce/Condiment</option>
+          <option>Frozen</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div>
+        <div class="field-label">Status</div>
+        <div class="status-options">
+          <button class="status-option" id="s-have" onclick="selectStatus('Have')">✓ Have</button>
+          <button class="status-option" id="s-low" onclick="selectStatus('Low')">~ Low</button>
+          <button class="status-option" id="s-out" onclick="selectStatus('Out')">✕ Out</button>
+        </div>
+      </div>
+      <div>
+        <div class="field-label">Notes</div>
+        <input class="field-input" id="f-notes" placeholder="e.g. running low, buy organic..." autocomplete="off">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-delete" id="btn-delete" style="display:none" onclick="deleteItem()">Delete</button>
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" id="btn-save" onclick="saveItem()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let CONFIG = {};
+let items = [];
+let currentTab = 'all';
+let editingRow = null; // 1-based row index in sheet
+let selectedStatus = 'Have';
+
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+
+function saveConfig() {
+  const apiKey = document.getElementById('cfg-api-key').value.trim();
+  const sheetId = document.getElementById('cfg-sheet-id').value.trim();
+  const sheetName = document.getElementById('cfg-sheet-name').value.trim() || 'Inventory';
+  if (!apiKey || !sheetId) { showToast('Fill in all fields', 'error'); return; }
+  CONFIG = { apiKey, sheetId, sheetName };
+  localStorage.setItem('pantry_config', JSON.stringify(CONFIG));
+  launchApp();
+}
+
+function loadConfig() {
+  const saved = localStorage.getItem('pantry_config');
+  if (saved) { CONFIG = JSON.parse(saved); return true; }
+  // Check URL params (for Siri Shortcuts deep links)
+  const p = new URLSearchParams(window.location.search);
+  if (p.get('action')) {
+    showToast('Configure the app first', 'error');
+  }
+  return false;
+}
+
+function showSettings() {
+  localStorage.removeItem('pantry_config');
+  document.getElementById('config-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+// ── LAUNCH ───────────────────────────────────────────────────────────────────
+
+function launchApp() {
+  document.getElementById('config-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  refreshData().then(() => {
+    // Handle Siri deep links
+    const p = new URLSearchParams(window.location.search);
+    const action = p.get('action');
+    const item = p.get('item');
+    if (action === 'add') { openAdd(item); }
+    else if (action === 'update' && item) { openEditByName(item); }
+  });
+}
+
+// ── SHEETS API ───────────────────────────────────────────────────────────────
+
+const BASE = () => `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.sheetId}/values`;
+
+async function fetchRows() {
+  const res = await fetch(`${BASE()}/${encodeURIComponent(CONFIG.sheetName)}!A:E?key=${CONFIG.apiKey}`);
+  if (!res.ok) throw new Error(`Sheets API error: ${res.status}`);
+  const data = await res.json();
+  return data.values || [];
+}
+
+async function appendRow(row) {
+  const res = await fetch(
+    `${BASE()}/${encodeURIComponent(CONFIG.sheetName)}!A:E:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS&key=${CONFIG.apiKey}`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ values: [row] }) }
+  );
+  if (!res.ok) throw new Error(`Append error: ${res.status}`);
+}
+
+async function updateRow(rowIndex, row) {
+  const range = `${CONFIG.sheetName}!A${rowIndex}:E${rowIndex}`;
+  const res = await fetch(
+    `${BASE()}/${encodeURIComponent(range)}?valueInputOption=RAW&key=${CONFIG.apiKey}`,
+    { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ values: [row] }) }
+  );
+  if (!res.ok) throw new Error(`Update error: ${res.status}`);
+}
+
+async function deleteRow(rowIndex) {
+  // Clear the row content (Sheets API doesn't easily delete rows without batchUpdate)
+  const range = `${CONFIG.sheetName}!A${rowIndex}:E${rowIndex}`;
+  const res = await fetch(
+    `${BASE()}/${encodeURIComponent(range)}?key=${CONFIG.apiKey}`,
+    { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ values: [['','','','','']] }) }
+  );
+  if (!res.ok) throw new Error(`Delete error: ${res.status}`);
+}
+
+// ── DATA ─────────────────────────────────────────────────────────────────────
+
+async function refreshData() {
+  setSyncing(true);
+  try {
+    const rows = await fetchRows();
+    // rows[0] = header, rows[1..] = data
+    items = [];
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r || !r[0] || r[0].trim() === '') continue; // skip empty rows
+      items.push({
+        rowIndex: i + 1, // 1-based sheet row
+        name: r[0] || '',
+        category: r[1] || 'Other',
+        status: r[2] || 'Have',
+        notes: r[3] || '',
+        updated: r[4] || ''
+      });
+    }
+    renderList();
+    updateShoppingCount();
+    setSyncing(false);
+  } catch (e) {
+    setSyncing(false, true);
+    showToast('Sync failed — check API key', 'error');
+    console.error(e);
+  }
+}
+
+function setSyncing(syncing, error = false) {
+  const dot = document.getElementById('sync-dot');
+  const txt = document.getElementById('sync-text');
+  if (error) { dot.style.background = 'var(--out)'; txt.textContent = 'error'; return; }
+  dot.className = syncing ? 'sync-dot syncing' : 'sync-dot';
+  txt.textContent = syncing ? 'syncing' : 'synced';
+}
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+
+function renderList() {
+  const query = document.getElementById('search').value.toLowerCase();
+  const content = document.getElementById('content');
+
+  let filtered = items.filter(it => {
+    if (query && !it.name.toLowerCase().includes(query) && !it.category.toLowerCase().includes(query)) return false;
+    if (currentTab === 'shopping') return it.status === 'Low' || it.status === 'Out';
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    content.innerHTML = `<div class="empty">${query ? 'No results for "' + query + '"' : currentTab === 'shopping' ? 'Nothing low or out 🎉' : 'No ingredients yet.\nTap + to add your first.'}</div>`;
+    return;
+  }
+
+  // Group by category
+  const groups = {};
+  filtered.forEach(it => {
+    const cat = it.category || 'Other';
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push(it);
+  });
+
+  const catOrder = ['Produce','Protein','Dairy','Pantry','Spice','Sauce/Condiment','Frozen','Other'];
+  const sortedCats = Object.keys(groups).sort((a,b) => {
+    const ai = catOrder.indexOf(a), bi = catOrder.indexOf(b);
+    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+  });
+
+  content.innerHTML = sortedCats.map(cat => `
+    <div class="category-group">
+      <div class="category-label">${cat}</div>
+      ${groups[cat].map(it => `
+        <div class="item-row" onclick="openEdit(${it.rowIndex})">
+          <div style="flex:1">
+            <div class="item-name">${it.name}</div>
+            ${it.notes ? `<div class="item-notes">${it.notes}</div>` : ''}
+          </div>
+          <div class="status-pill ${it.status.toLowerCase()}">${it.status}</div>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function updateShoppingCount() {
+  const n = items.filter(it => it.status === 'Low' || it.status === 'Out').length;
+  const el = document.getElementById('shopping-count');
+  el.style.display = n > 0 ? 'inline-block' : 'none';
+  el.textContent = n;
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('tab-all').className = 'tab' + (tab === 'all' ? ' active' : '');
+  document.getElementById('tab-shopping').className = 'tab' + (tab === 'shopping' ? ' active' : '');
+  renderList();
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+
+function openAdd(prefillName = null) {
+  editingRow = null;
+  document.getElementById('modal-title').textContent = 'Add Ingredient';
+  document.getElementById('f-name').value = prefillName || '';
+  document.getElementById('f-category').value = '';
+  document.getElementById('f-notes').value = '';
+  document.getElementById('btn-delete').style.display = 'none';
+  selectStatus('Have');
+  document.getElementById('modal').classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 300);
+}
+
+function openEdit(rowIndex) {
+  const item = items.find(it => it.rowIndex === rowIndex);
+  if (!item) return;
+  editingRow = rowIndex;
+  document.getElementById('modal-title').textContent = 'Edit Ingredient';
+  document.getElementById('f-name').value = item.name;
+  document.getElementById('f-category').value = item.category;
+  document.getElementById('f-notes').value = item.notes;
+  document.getElementById('btn-delete').style.display = 'block';
+  selectStatus(item.status);
+  document.getElementById('modal').classList.add('open');
+}
+
+function openEditByName(name) {
+  const item = items.find(it => it.name.toLowerCase() === name.toLowerCase());
+  if (item) { openEdit(item.rowIndex); }
+  else { openAdd(name); }
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+function selectStatus(s) {
+  selectedStatus = s;
+  ['have','low','out'].forEach(v => {
+    const el = document.getElementById('s-' + v);
+    el.className = 'status-option';
+    if (v === s.toLowerCase()) el.className += ' selected-' + v;
+  });
+}
+
+async function saveItem() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { showToast('Item name required', 'error'); return; }
+  const category = document.getElementById('f-category').value || 'Other';
+  const notes = document.getElementById('f-notes').value.trim();
+  const now = new Date().toLocaleDateString('en-US');
+  const row = [name, category, selectedStatus, notes, now];
+
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  try {
+    if (editingRow) {
+      await updateRow(editingRow, row);
+      const idx = items.findIndex(it => it.rowIndex === editingRow);
+      if (idx >= 0) items[idx] = { rowIndex: editingRow, name, category, status: selectedStatus, notes, updated: now };
+      showToast(`${name} updated ✓`, 'success');
+    } else {
+      // Check for existing item with same name
+      const existing = items.find(it => it.name.toLowerCase() === name.toLowerCase());
+      if (existing) {
+        await updateRow(existing.rowIndex, row);
+        const idx = items.findIndex(it => it.rowIndex === existing.rowIndex);
+        if (idx >= 0) items[idx] = { rowIndex: existing.rowIndex, name, category, status: selectedStatus, notes, updated: now };
+        showToast(`${name} updated ✓`, 'success');
+      } else {
+        await appendRow(row);
+        await refreshData();
+        showToast(`${name} added ✓`, 'success');
+      }
+    }
+    renderList();
+    updateShoppingCount();
+    closeModal();
+  } catch (e) {
+    showToast('Save failed', 'error');
+    console.error(e);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Save';
+}
+
+async function deleteItem() {
+  if (!editingRow) return;
+  const item = items.find(it => it.rowIndex === editingRow);
+  if (!confirm(`Delete ${item?.name}?`)) return;
+  try {
+    await deleteRow(editingRow);
+    items = items.filter(it => it.rowIndex !== editingRow);
+    renderList();
+    updateShoppingCount();
+    closeModal();
+    showToast('Deleted', 'success');
+  } catch (e) {
+    showToast('Delete failed', 'error');
+  }
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  setTimeout(() => t.className = 'toast', 2500);
+}
+
+// ── CLOSE MODAL ON OVERLAY TAP ────────────────────────────────────────────────
+
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+
+if (loadConfig()) {
+  launchApp();
+}
+</script>
+
+<!-- SIRI SHORTCUT INSTRUCTIONS (shown after first load in settings) -->
+</body>
+</html>
